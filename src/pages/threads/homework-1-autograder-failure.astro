@@ -5,6 +5,7 @@ import { unreadCount } from '../../data/sidebar';
 import '../../styles/global.css';
 
 const withBase = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\//, '')}`;
+const threadHomePath = withBase('/?threadMockPosted=1');
 ---
 
 <html lang="en">
@@ -272,7 +273,7 @@ const withBase = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^
 				</section>
 			</div>
 		</main>
-		<script is:inline>
+		<script is:inline define:vars={{ threadHomePath }}>
 			const notifyButton = document.getElementById('notify-instructor-button');
 			const notifyStatus = document.getElementById('notify-status');
 			const resolvedToggle = document.getElementById('resolved-toggle');
@@ -367,7 +368,7 @@ const withBase = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^
 
 			if (postResponseButton && postResponseStatus) {
 				postResponseButton.addEventListener('click', () => {
-					postResponseStatus.classList.remove('hidden');
+					window.location.href = threadHomePath;
 				});
 			}
 

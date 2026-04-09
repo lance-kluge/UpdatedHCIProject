@@ -23,6 +23,11 @@ const withBase = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^
         <TopBarHeader title="Messenger" unreadCount={unreadCount} />
         <section id="threads" class="flex-1 p-6 lg:p-7">
           <div class="space-y-3">
+            <div id="mock-thread-banner" class="hidden rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+              <p class="font-semibold">Success: Thread post saved (mock).</p>
+              <p class="mt-1 text-emerald-800">Demo disclaimer: nothing was actually posted or saved.</p>
+            </div>
+
             <div class="flex items-center justify-between rounded-lg border border-slate-200 bg-white px-4 py-3">
               <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-800">Threads</h2>
               <a
@@ -52,6 +57,16 @@ const withBase = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^
     <script is:inline>
       const normalize = str => str.toLowerCase().replace(/\s/g, '-').replace(/[^a-z0-9-]/g, '');
       const samePath = (a, b) => a.replace(/\/$/, '') === b.replace(/\/$/, '');
+      const pageParams = new URLSearchParams(window.location.search);
+      const mockThreadBanner = document.getElementById('mock-thread-banner');
+
+      if (mockThreadBanner && pageParams.get('threadMockPosted') === '1') {
+        mockThreadBanner.classList.remove('hidden');
+        pageParams.delete('threadMockPosted');
+        const cleanedQuery = pageParams.toString();
+        const cleanedUrl = `${window.location.pathname}${cleanedQuery ? `?${cleanedQuery}` : ''}${window.location.hash}`;
+        window.history.replaceState({}, '', cleanedUrl);
+      }
 
       function setupFilters(group, queryParam) {
         const cards = Array.from(document.querySelectorAll(`[data-${group}-card]`));
