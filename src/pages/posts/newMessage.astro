@@ -1,6 +1,7 @@
 ---
 import LeftSidebar from '../../components/sidebar/LeftSidebar.astro';
 import TopBarHeader from '../../components/TopBarHeader.astro';
+import { mockPeople } from '../../data/people';
 import { unreadCount } from '../../data/sidebar';
 import '../../styles/global.css';
 
@@ -28,16 +29,28 @@ const messagingPath = withBase('/messages/messaging/');
             <h1 class="text-2xl font-semibold text-slate-900 mb-4">Compose New Message</h1>
 
             <form id="newMessageForm" class="space-y-5">
-              <label class="block space-y-1">
-                <span class="text-xs font-semibold uppercase tracking-wide text-slate-500">Recipient</span>
-                <input
-                  type="text"
-                  name="recipient"
-                  placeholder="Recipient name"
-                  class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-800"
-                  required
-                />
-              </label>
+              <div class="space-y-1">
+                <label for="recipient-input" class="text-xs font-semibold uppercase tracking-wide text-slate-500">Recipients</label>
+                <div class="min-h-14 rounded-md border border-slate-300 px-3 py-2 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-200">
+                  <div id="recipient-chip-list" class="flex flex-wrap gap-2"></div>
+                  <div class="relative mt-1">
+                  <input
+                    id="recipient-input"
+                    type="text"
+                    placeholder="Search people and press Enter"
+                    autocomplete="off"
+                    class="w-full border-0 p-0 text-sm text-slate-800 outline-none ring-0 placeholder:text-slate-400 focus:ring-0"
+                  />
+                  <div id="recipient-suggestions" class="absolute z-10 mt-2 hidden w-full overflow-hidden rounded-lg border border-slate-200 bg-white shadow-lg">
+                    <div class="border-b border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                      People
+                    </div>
+                    <div id="recipient-suggestion-list" class="max-h-72 overflow-y-auto"></div>
+                  </div>
+                  </div>
+                </div>
+                <p class="text-xs text-slate-500">Type a name to filter the class roster.</p>
+              </div>
 
               <label class="block space-y-1">
                 <span class="text-xs font-semibold uppercase tracking-wide text-slate-500">Message</span>
@@ -71,36 +84,192 @@ const messagingPath = withBase('/messages/messaging/');
     </div>
   </main>
 
-  <script is:inline define:vars={{ messagingPath }}>
+  <script is:inline define:vars={{ messagingPath, mockPeople }}>
     const form = document.getElementById('newMessageForm');
+    const recipientInput = document.getElementById('recipient-input');
+    const recipientSuggestions = document.getElementById('recipient-suggestions');
+    const recipientSuggestionList = document.getElementById('recipient-suggestion-list');
+    const recipientChipList = document.getElementById('recipient-chip-list');
+
+    const people = mockPeople;
+    const selectedPeople = [];
+
+    const roleStyles = {
+      student: 'bg-blue-50 text-blue-700 border-blue-100',
+      professor: 'bg-amber-50 text-amber-800 border-amber-100'
+    };
+
+    const findPerson = (name) => people.find((person) => person.name === name);
+
+    const setSuggestionsVisible = (visible) => {
+      if (!recipientSuggestions) return;
+      recipientSuggestions.classList.toggle('hidden', !visible);
+    };
+
+    const syncHiddenRecipientValue = () => {
+      let hiddenRecipientInput = form.querySelector('input[name="recipientList"]');
+
+      if (!hiddenRecipientInput) {
+        hiddenRecipientInput = document.createElement('input');
+        hiddenRecipientInput.type = 'hidden';
+        hiddenRecipientInput.name = 'recipientList';
+        form.appendChild(hiddenRecipientInput);
+      }
+
+      hiddenRecipientInput.value = selectedPeople.map((person) => person.name).join(', ');
+      recipientInput.setCustomValidity(selectedPeople.length > 0 ? '' : 'Add at least one recipient.');
+    };
+
+    const removeSelectedPerson = (name) => {
+      const index = selectedPeople.findIndex((person) => person.name === name);
+      if (index === -1) return;
+
+      selectedPeople.splice(index, 1);
+      renderSelectedPeople();
+      renderSuggestions(recipientInput?.value || '');
+      syncHiddenRecipientValue();
+    };
+
+    const addSelectedPerson = (person) => {
+      if (selectedPeople.some((selected) => selected.name === person.name)) return;
+
+      selectedPeople.push(person);
+      renderSelectedPeople();
+      syncHiddenRecipientValue();
+      if (recipientInput) {
+        recipientInput.value = '';
+      }
+      renderSuggestions('');
+      setSuggestionsVisible(false);
+    };
+
+    function renderSelectedPeople() {
+      if (!recipientChipList) return;
+
+      recipientChipList.innerHTML = selectedPeople
+        .map((person) => {
+          const badgeClass = roleStyles[person.role];
+          const roleLabel = person.role === 'professor' ? 'Professor' : 'Student';
+
+          return `
+            <span class="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-sm font-medium ${badgeClass}">
+              <span>${person.name}</span>
+              <button
+                type="button"
+                data-remove-name="${person.name}"
+                class="inline-flex h-5 w-5 items-center justify-center rounded-full bg-white/70 text-current transition hover:bg-white"
+                aria-label="Remove ${person.name}"
+              >
+                ×
+              </button>
+            </span>
+          `;
+        })
+        .join('');
+
+      recipientChipList.querySelectorAll('button[data-remove-name]').forEach((button) => {
+        button.addEventListener('click', () => {
+          const name = button.getAttribute('data-remove-name');
+          if (name) removeSelectedPerson(name);
+        });
+      });
+    }
+
+    const renderSuggestions = (query = '') => {
+      if (!recipientSuggestions || !recipientSuggestionList) return;
+
+      const normalizedQuery = query.trim().toLowerCase();
+      const matches = people.filter((person) => {
+        const notSelected = !selectedPeople.some((selected) => selected.name === person.name);
+        const matchesQuery = normalizedQuery ? person.name.toLowerCase().includes(normalizedQuery) : true;
+        return notSelected && matchesQuery;
+      });
+
+      if (matches.length === 0) {
+        recipientSuggestionList.innerHTML = '';
+        setSuggestionsVisible(false);
+        return;
+      }
+
+      recipientSuggestionList.innerHTML = matches
+        .map((person) => {
+          const badgeClass = roleStyles[person.role];
+          const roleLabel = person.role === 'professor' ? 'Professor' : 'Student';
+
+          return `
+            <button
+              type="button"
+              data-person-name="${person.name}"
+              class="flex w-full items-center justify-between gap-3 border-b border-slate-100 px-3 py-3 text-left transition hover:bg-slate-50 last:border-b-0"
+            >
+              <span class="text-sm font-medium text-slate-900">${person.name}</span>
+              <span class="rounded-full border px-2.5 py-0.5 text-xs font-semibold ${badgeClass}">${roleLabel}</span>
+            </button>
+          `;
+        })
+        .join('');
+
+      recipientSuggestions.classList.toggle('hidden', matches.length === 0);
+
+      recipientSuggestionList.querySelectorAll('button[data-person-name]').forEach((button) => {
+        button.addEventListener('click', () => {
+          const selectedName = button.getAttribute('data-person-name');
+          const person = selectedName ? findPerson(selectedName) : undefined;
+          if (person) addSelectedPerson(person);
+          recipientInput.focus();
+        });
+      });
+    };
+
+    if (recipientInput && recipientSuggestions) {
+      renderSelectedPeople();
+      syncHiddenRecipientValue();
+
+      recipientInput.addEventListener('focus', () => {
+        renderSuggestions(recipientInput.value);
+        setSuggestionsVisible(true);
+      });
+
+      recipientInput.addEventListener('input', () => {
+        renderSuggestions(recipientInput.value);
+        setSuggestionsVisible(true);
+      });
+
+      recipientInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          const firstMatch = people.find((person) => {
+            const alreadySelected = selectedPeople.some((selected) => selected.name === person.name);
+            const matchesQuery = person.name.toLowerCase().includes(recipientInput.value.trim().toLowerCase());
+            return !alreadySelected && matchesQuery;
+          });
+
+          if (firstMatch) {
+            addSelectedPerson(firstMatch);
+          }
+        }
+      });
+
+      recipientInput.addEventListener('blur', () => {
+        window.setTimeout(() => recipientSuggestions.classList.add('hidden'), 120);
+      });
+    }
 
     form.addEventListener('submit', (e) => {
       e.preventDefault();
 
-      // Collect form data
-      const formData = new FormData(form);
-      const recipient = formData.get('recipient');
-      const body = formData.get('body');
+      if (selectedPeople.length === 0) {
+        recipientInput?.setCustomValidity('Add at least one recipient.');
+        recipientInput?.reportValidity();
+        return;
+      }
 
-      // Get stored messages from localStorage
-      const storedMessages = JSON.parse(localStorage.getItem('messages') || '[]');
+      recipientInput?.setCustomValidity('');
 
-      // Create new message object
-      const newMessage = {
-        id: `msg-${Date.now()}`,
-        name: recipient,
-        lastMessage: body,
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        type: 'sent-messages', // always sent-messages for new messages
-        unread: true
-      };
-
-      // Add to stored messages
-      storedMessages.push(newMessage);
-      localStorage.setItem('messages', JSON.stringify(storedMessages));
-
-      // Redirect back to messages page
-      window.location.href = messagingPath;
+      // Mock-only send: do not persist message data.
+      const redirectUrl = new URL(messagingPath, window.location.origin);
+      redirectUrl.searchParams.set('mockSent', '1');
+      window.location.href = redirectUrl.toString();
     });
   </script>
 </body>
