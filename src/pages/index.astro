@@ -51,12 +51,15 @@ const withBase = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^
 
     <script is:inline>
       const normalize = str => str.toLowerCase().replace(/\s/g, '-').replace(/[^a-z0-9-]/g, '');
-      function setupFilters(group) {
+      const samePath = (a, b) => a.replace(/\/$/, '') === b.replace(/\/$/, '');
+
+      function setupFilters(group, queryParam) {
         const cards = Array.from(document.querySelectorAll(`[data-${group}-card]`));
         const controls = Array.from(
           document.querySelectorAll(`[data-filter-group="${group}"][data-filter-value]`)
         );
         const activeClass = ['bg-slate-200', 'text-slate-900'];
+        const params = new URLSearchParams(window.location.search);
 
         function applyFilter(filterValue) {
           const normalizedFilter = filterValue === 'all' ? 'all' : normalize(filterValue);
@@ -70,14 +73,37 @@ const withBase = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^
             activeClass.forEach(cls => control.classList.toggle(cls, isActive));
             if (control.tagName === 'BUTTON') control.setAttribute('aria-pressed', String(isActive));
           });
+
+          if (queryParam) {
+            if (normalizedFilter === 'all') {
+              params.delete(queryParam);
+            } else {
+              params.set(queryParam, normalizedFilter);
+            }
+
+            const nextQuery = params.toString();
+            const nextUrl = `${window.location.pathname}${nextQuery ? `?${nextQuery}` : ''}${window.location.hash}`;
+            window.history.replaceState({}, '', nextUrl);
+          }
         }
 
-        controls.forEach(control => control.addEventListener('click', () => applyFilter(control.getAttribute('data-filter-value'))));
-        applyFilter('all');
+        controls.forEach(control => control.addEventListener('click', (e) => {
+          if (control.tagName === 'A') {
+            const targetUrl = new URL(control.href, window.location.origin);
+            if (samePath(targetUrl.pathname, window.location.pathname)) {
+              e.preventDefault();
+            }
+          }
+
+          applyFilter(control.getAttribute('data-filter-value'));
+        }));
+
+        const initialFilter = queryParam ? params.get(queryParam) || 'all' : 'all';
+        applyFilter(initialFilter);
       }
 
-      setupFilters('thread');
-      setupFilters('message');
+      setupFilters('thread', 'threadFilter');
+      setupFilters('message', 'messageFilter');
     </script>
   </body>
 </html>

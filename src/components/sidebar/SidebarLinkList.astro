@@ -3,9 +3,10 @@ interface Props {
   items: string[];
   indentClass?: string;
   filterGroup?: string;
+  hrefBase?: string;
 }
 
-const { items, indentClass = 'pl-5', filterGroup } = Astro.props;
+const { items, indentClass = 'pl-5', filterGroup, hrefBase } = Astro.props;
 
 const normalize = (str: string) =>
   str.toLowerCase().replace(/\s/g, '-').replace(/[^a-z0-9-]/g, '');
@@ -17,14 +18,25 @@ const normalize = (str: string) =>
 
     return (
       <li>
-        <button
-          type="button"
-          data-filter-group={filterGroup}
-          data-filter-value={value}
-          class={`w-full rounded-md px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 hover:text-slate-900 ${indentClass}`}
-        >
-          {item}
-        </button>
+        {hrefBase ? (
+          <a
+            href={`${hrefBase}${encodeURIComponent(value ?? '')}`}
+            data-filter-group={filterGroup}
+            data-filter-value={value}
+            class={`block w-full rounded-md px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 hover:text-slate-900 ${indentClass}`}
+          >
+            {item}
+          </a>
+        ) : (
+          <button
+            type="button"
+            data-filter-group={filterGroup}
+            data-filter-value={value}
+            class={`w-full rounded-md px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 hover:text-slate-900 ${indentClass}`}
+          >
+            {item}
+          </button>
+        )}
       </li>
     );
   })}

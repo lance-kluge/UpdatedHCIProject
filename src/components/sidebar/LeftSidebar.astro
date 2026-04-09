@@ -25,12 +25,12 @@ const withBase = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^
 
     <section>
       <SidebarHeadingRow label="Threads" href={withBase('/#threads')} filterGroup="thread" filterValue="all" />
-      <SidebarLinkList items={threadFilters} filterGroup="thread" />
+      <SidebarLinkList items={threadFilters} filterGroup="thread" hrefBase={withBase('/?threadFilter=')} />
     </section>
 
     <section>
       <SidebarHeadingRow label="Messaging" href={withBase('/messages/messaging/')} filterGroup="message" filterValue="all" />
-      <SidebarLinkList items={messagingFilters} filterGroup="message"/>
+      <SidebarLinkList items={messagingFilters} filterGroup="message" hrefBase={withBase('/messages/messaging/?messageFilter=')} />
     </section>
   </nav>
 </aside>
