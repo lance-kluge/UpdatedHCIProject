@@ -25,25 +25,25 @@ const isBlockedMessageName = (name: string) =>
       <div class="flex min-h-screen flex-1 flex-col">
         <TopBarHeader title="Messages" unreadCount={unreadCount} />
 
-        <section class="flex-1 p-6 lg:p-7 overflow-y-auto">
-          <div class="space-y-4">
+        <section class="flex-1 overflow-y-auto p-8 lg:p-12">
+          <div class="space-y-6">
 
             <div id="mock-send-banner" class="hidden rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
               <p class="font-semibold">Success: Message sent (mock).</p>
               <p class="mt-1 text-emerald-800">Demo disclaimer: no message was actually saved.</p>
             </div>
 
-            <div class="flex items-center justify-between rounded-lg border border-slate-200 bg-white px-4 py-3">
-              <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-800">Messages</h2>
+            <div class="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-6 py-5">
+              <h2 class="text-base font-semibold uppercase tracking-wide text-slate-800">Messages</h2>
               <a
                 href={withBase('/posts/newMessage/')}
-                class="rounded-md bg-green-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-green-700"
+                class="rounded-md bg-green-600 px-5 py-2.5 text-base font-semibold text-white transition hover:bg-green-700"
               >
                 New Message
               </a>
             </div>
 
-            <div id="message-cards" class="space-y-4">
+            <div id="message-cards" class="space-y-4.5">
               {mockMessages.filter(msg => !isBlockedMessageName(msg.name)).map(msg => (
                 <div data-message-card data-message-category={msg.type.toLowerCase()}>
                   <MessengerCard message={msg} />
@@ -137,16 +137,16 @@ const isBlockedMessageName = (name: string) =>
         wrapper.dataset.messageCard = '';
         wrapper.dataset.messageCategory = msg.type.toLowerCase();
         wrapper.innerHTML = `
-          <article class="flex items-center gap-3 rounded-lg border border-slate-200 bg-white px-4 py-3">
-            <div class="h-10 w-10 shrink-0 rounded-full bg-slate-200"></div>
+          <article class="flex items-center gap-5 rounded-xl border border-slate-200 bg-white px-6 py-5">
+            <div class="h-14 w-14 shrink-0 rounded-full bg-slate-200"></div>
             <div class="min-w-0 flex-1">
               <div class="flex items-center gap-2">
-                <h3 class="truncate text-sm font-semibold text-slate-900">${msg.name}</h3>
-                <p class="ml-auto text-xs text-slate-500">${msg.time}</p>
+                <h3 class="truncate text-lg font-semibold text-slate-900">${msg.name}</h3>
+                <p class="ml-auto text-base text-slate-500">${msg.time}</p>
               </div>
-              <p class="truncate text-sm text-slate-600">${msg.lastMessage}</p>
+              <p class="mt-1.5 truncate text-base text-slate-600">${msg.lastMessage}</p>
             </div>
-            ${msg.unread ? '<div class="h-2.5 w-2.5 rounded-full bg-blue-500"></div>' : ''}
+            ${msg.unread ? '<div class="h-3.5 w-3.5 rounded-full bg-blue-500"></div>' : ''}
           </article>
         `;
         container.appendChild(wrapper);
