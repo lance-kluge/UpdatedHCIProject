@@ -33,7 +33,7 @@ const getInstructorNotice = (thread: ThreadMock) => {
     const hours = thread.instructorNotifyInHours ?? 6;
     return {
       label: `Instructor set to be notified in ${hours} hours`,
-      toneClass: 'bg-amber-50 text-amber-800 border-amber-200'
+      toneClass: 'bg-[#CFB87C]/18 text-slate-900 border-[#CFB87C]/60'
     };
   }
 
@@ -78,7 +78,7 @@ const normalize = (str: string) =>
   <a
     href={threadHref}
     aria-label={`Open ${thread.title}`}
-    class="shrink-0 rounded-md border border-slate-300 bg-white px-4 py-2.5 text-lg text-slate-700 transition hover:bg-slate-50"
+    class="shrink-0 rounded-md border border-slate-300 bg-white px-4 py-2.5 text-lg text-slate-900 transition hover:bg-slate-50"
   >
     →
   </a>

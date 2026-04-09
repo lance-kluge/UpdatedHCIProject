@@ -16,7 +16,7 @@ const withBase = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^
     <meta name="viewport" content="width=device-width" />
     <title>Threads</title>
   </head>
-  <body class="min-h-screen bg-slate-100 text-slate-900">
+  <body class="min-h-screen bg-[#565A5C]/20 text-slate-900">
     <main class="flex min-h-screen">
       <LeftSidebar />
       <div class="flex min-h-screen flex-1 flex-col">
@@ -28,11 +28,11 @@ const withBase = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^
               <p class="mt-1 text-emerald-800">Demo disclaimer: nothing was actually posted or saved.</p>
             </div>
 
-            <div class="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-6 py-5">
+            <div class="flex items-center justify-between rounded-xl border-2 border-[#CFB87C] bg-white px-6 py-5">
               <h2 class="text-base font-semibold uppercase tracking-wide text-slate-800">Threads</h2>
               <a
                 href={withBase('/posts/new/')}
-                class="rounded-md bg-green-600 px-5 py-2.5 text-base font-semibold text-white transition hover:bg-green-700"
+                class="rounded-md bg-slate-900 px-5 py-2.5 text-base font-semibold text-[#CFB87C] transition hover:bg-black"
               >
                 New Post
               </a>
@@ -73,7 +73,7 @@ const withBase = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^
         const controls = Array.from(
           document.querySelectorAll(`[data-filter-group="${group}"][data-filter-value]`)
         );
-        const activeClass = ['bg-slate-200', 'text-slate-900'];
+        const activeClass = ['bg-[#CFB87C]/35', 'text-slate-950'];
         const params = new URLSearchParams(window.location.search);
 
         function applyFilter(filterValue) {
