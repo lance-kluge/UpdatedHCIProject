@@ -121,15 +121,38 @@ const withBase = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^
 									<p class="mt-1 font-semibold text-red-700">High</p>
 								</div>
 							</div>
-							<div class="mt-5 flex items-center justify-between rounded-lg border border-slate-200 px-4 py-3">
-								<div>
-									<p class="text-sm font-semibold text-slate-900">Mark Thread Resolved</p>
-									<p class="text-xs text-slate-600">Toggle this when the autograder issue has a confirmed fix.</p>
+							<div class="mt-5 grid gap-4 lg:grid-cols-2">
+								<div class="rounded-lg border border-slate-200 px-4 py-3 text-center">
+									<div class="flex flex-col items-center gap-4">
+										<div>
+											<p class="text-sm font-semibold text-slate-900">Notify Instructor</p>
+											<p class="text-xs text-slate-600">Send a notice when the grading issue needs attention.</p>
+										</div>
+										<button
+											id="notify-instructor-button"
+											type="button"
+											class="rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700"
+										>
+											Notify Instructor
+										</button>
+									</div>
+									<p id="notify-status" class="hidden rounded-md bg-green-50 px-3 py-2 text-sm font-semibold text-green-700">
+										Instructor has been notified.
+									</p>
 								</div>
-								<label class="inline-flex cursor-pointer items-center gap-2">
-									<input id="resolved-toggle" type="checkbox" class="h-4 w-4" />
-									<span class="text-sm font-medium text-slate-700">Resolved</span>
-								</label>
+
+								<div class="rounded-lg border border-slate-200 px-4 py-3 text-center">
+									<div class="flex flex-col items-center gap-4">
+										<div>
+											<p class="text-sm font-semibold text-slate-900">Mark Thread Resolved</p>
+											<p class="text-xs text-slate-600">Toggle this when the autograder issue has a confirmed fix.</p>
+										</div>
+										<label class="inline-flex cursor-pointer items-center gap-2">
+											<input id="resolved-toggle" type="checkbox" class="h-4 w-4" />
+											<span class="text-sm font-medium text-slate-700">Resolved</span>
+										</label>
+									</div>
+								</div>
 							</div>
 						</article>
 
@@ -167,29 +190,6 @@ const withBase = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^
 									Response posted for demo preview.
 								</p>
 							</div>
-						</section>
-
-						<section class="rounded-xl border border-slate-200 bg-white p-6 lg:p-7">
-							<div class="flex flex-wrap items-center justify-between gap-4">
-								<div>
-									<h2 class="text-lg font-semibold">Need Instructor Attention?</h2>
-									<p class="mt-1.5 text-sm text-slate-600">
-										Use this action to notify the instructor about unresolved grading issues.
-									</p>
-								</div>
-								<div class="flex items-center gap-2">
-									<button
-										id="notify-instructor-button"
-										type="button"
-										class="rounded-md bg-red-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-red-700"
-									>
-										Notify Instructor
-									</button>
-								</div>
-							</div>
-							<p id="notify-status" class="mt-4 hidden rounded-md bg-green-50 px-3 py-2 text-sm font-semibold text-green-700">
-								Instructor has been notified.
-							</p>
 						</section>
 
 						<div id="post-settings-overlay" class="fixed inset-0 z-40 hidden bg-slate-900/40 p-4 sm:p-8">
